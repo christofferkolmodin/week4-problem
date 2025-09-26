@@ -1,3 +1,5 @@
+package bouncing_balls;
+
 /**
  * The physics model.
  * 

@@ -1,3 +1,5 @@
+package bouncing_balls;
+
 import java.awt.*;
 import java.awt.Color;
 import java.awt.Dimension;
