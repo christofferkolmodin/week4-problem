@@ -60,7 +60,7 @@ class Model {
 			Ball ball1 = balls[i];
 
 			for (int j = 0; j < balls.length; j++) {
-				if (j > i) {  // Don't repeat ball comparisons
+				if (j > i) {  // Don't repeat ball comparisons and don't compare a ball with itself
 					Ball ball2 = balls[j];
 
 					if (isBallCollision(ball1, ball2)) {
