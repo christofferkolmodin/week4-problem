@@ -31,35 +31,37 @@ class Model {
 	void step(double deltaT) {
 		// TODO this method implements one step of simulation with a step deltaT
 		for (Ball ball : balls) {
-			// detect collision with the border
+
 			if (isCollisionWithWall(ball)) {
 				changeHorizontalDirection(ball);
 			}
+
 			if (isCollisionWithFloor(ball)) {
 				preventOutOfBoundsFloor(ball);
 				changeVerticalDirection(ball);
 				System.out.println("Velocity after collision with floor: " + ball.vy);
+
 			} else if (isCollisionWithRoof(ball)) {
 				preventOutOfBoundsRoof(ball);
 				changeVerticalDirection(ball);
 				System.out.println("Velocity after collision with roof: " + ball.vy);
 			}
 
-			// compute new position according to the speed of the ball
 			applyGravity(ball, deltaT);
 			System.out.println("After calculation velocity is: " + ball.vy);
+			// compute new position according to the speed of the ball
 			updatePosition(ball, deltaT);
 
 		}
 	}
 
+	private void applyGravity(Ball ball, double deltaT) {
+		ball.vy += deltaT * gravity;
+	}
+
 	private void updatePosition(Ball ball, double deltaT) {
 		ball.x += deltaT * ball.vx;
 		ball.y += deltaT * ball.vy;
-	}
-
-	private void applyGravity(Ball ball, double deltaT) {
-		ball.vy += deltaT * gravity;
 	}
 
 	private boolean isCollisionWithRoof(Ball b) {
