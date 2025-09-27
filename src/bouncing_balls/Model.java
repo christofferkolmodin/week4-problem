@@ -57,12 +57,12 @@ class Model {
 
 	private void handleBallOnBallCollision(Ball[] balls) {
 		for (int i = 0; i < balls.length; i++) {
+			Ball ball1 = balls[i];
+
 			for (int j = 0; j < balls.length; j++) {
-
-				Ball ball1 = balls[i];
-				Ball ball2 = balls[j];
-
 				if (j > i) {  // Don't repeat ball comparisons
+					Ball ball2 = balls[j];
+
 					if (isBallCollision(ball1, ball2)) {
 						bounceTimeBaby(ball1, ball2);
 					}
