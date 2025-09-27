@@ -75,6 +75,7 @@ class Model {
 	private boolean isBallCollision(Ball ball1, Ball ball2) {
 		double distance = distanceBetweenBalls(ball1, ball2);
 
+		// Returns true if distance between the centre of the two balls is less than the sum of their radii
 		return distance < (ball1.radius + ball2.radius);
 	}
 
