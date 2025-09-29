@@ -23,9 +23,10 @@ class Model {
 		areaHeight = height;
 		
 		// Initialize the model with a few balls
-		balls = new Ball[2];
+		balls = new Ball[3];
 		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 20);
 		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 15);
+		balls[2] = new Ball(2.5 * width / 3, height * 0.5, -1.0, 1.0,0.25, 17);
 	}
 
 	void step(double deltaT) {
