@@ -24,8 +24,8 @@ class Model {
 		
 		// Initialize the model with a few balls
 		balls = new Ball[3];
-		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 20);
-		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 15);
+		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 15);
+		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 20);
 		balls[2] = new Ball(2.5 * width / 3, height * 0.5, -1.0, 1.0,0.25, 17);
 	}
 
@@ -161,13 +161,28 @@ class Model {
 
 		// Conservation of momentum before collision
 		// I = m1u1 + m2u2
-		double momentumX = (ball1.weight * ball1.vx) + (ball2.weight * ball2.vx);
-		double momentumY = (ball1.weight * ball1.vy) + (ball2.weight * ball2.vy);
+		//double momentumX = (ball1.weight * ball1.vx) + (ball2.weight * ball2.vx);
+		//double momentumY = (ball1.weight * ball1.vy) + (ball2.weight * ball2.vy);
+
+		// Compute the collision normal (unit vector along the line of centers at impact)
+
+		double distX = xDistanceBetweenBalls(ball1, ball2);
+		double distY = yDistanceBetweenBalls(ball1, ball2);
+		double dist = distanceBetweenBalls(ball1, ball2);
+
+		double nx = distX / dist;
+		double ny = distY / dist;
 
 		// Conservation of energy before collision
 		// R = u2 − u1
-		double relativeVelocityX = ball2.vx - ball1.vx;
-		double relativeVelocityY = ball2.vy - ball1.vy;
+		//double relativeVelocityX = ball2.vx - ball1.vx;
+		//double relativeVelocityY = ball2.vy - ball1.vy;
+
+		// Compute the relative velocity along collisions normal
+
+		double vxRel = ball1.vx - ball2.vx;
+		double vyRel = ball1.vy - ball2.vy;
+		double relVelAlongNormal = vxRel * nx + vyRel * ny; //
 
 		/* System of equations for after collision */
 		//	(1) m1v1 + m2v2 = I
@@ -185,15 +200,28 @@ class Model {
 		//		v2 = I + m2*R - R(m1 + m2) / (m1 + m2)
 		//		v2 = I - m1*R / (m1 + m2)
 
-		double sumWeights = ball1.weight + ball2.weight;
+		//double sumWeights = ball1.weight + ball2.weight;
 
 		// v1 = I + m2*R / (m1 + m2)
-		ball1.vx = (momentumX + (ball2.weight*relativeVelocityX)) / sumWeights;
-		ball1.vy = (momentumY + (ball2.weight*relativeVelocityY)) / sumWeights;
+		//ball1.vx = (momentumX + (ball2.weight*relativeVelocityX)) / sumWeights;
+		//ball1.vy = (momentumY + (ball2.weight*relativeVelocityY)) / sumWeights;
 
 		// v2 = I - m1*R / (m1 + m2)
-		ball2.vx = (momentumX - (ball1.weight * relativeVelocityX)) / sumWeights;
-		ball2.vy = (momentumY - (ball1.weight * relativeVelocityY)) / sumWeights;
+		//ball2.vx = (momentumX - (ball1.weight * relativeVelocityX)) / sumWeights;
+		//ball2.vy = (momentumY - (ball1.weight * relativeVelocityY)) / sumWeights;
+
+		// Apply the 1D collision formula only along the collsion axis, not per component
+
+		double m1 = ball1.weight;
+		double m2 = ball2.weight;
+
+		double impulse = (2* relVelAlongNormal) / (m1 + m2);
+
+		ball1.vx -= impulse * m2 * nx;
+		ball1.vy -= impulse * m2 * ny;
+
+		ball2.vx += impulse * m1 * nx;
+		ball2.vy += impulse * m1 * ny;
 	}
 
 	private double square(double value) {
