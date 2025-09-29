@@ -24,9 +24,9 @@ class Model {
 		
 		// Initialize the model with a few balls
 		balls = new Ball[3];
-		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 20);
-		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 15);
-		balls[2] = new Ball(2.5 * width / 3, height * 0.5, -1.0, 1.0,0.25, 17);
+		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 15);
+		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 25);
+		balls[2] = new Ball(2.5 * width / 3, height * 0.5, -1.0, 1.0,0.25, 20);
 	}
 
 	void step(double deltaT) {
@@ -94,8 +94,8 @@ class Model {
 	}
 
 	private void separateInDirectionOfMovement(Ball ball1, Ball ball2, double amountMove) {
-		double normalX = xDistanceBetweenBalls(ball1, ball2) / distanceBetweenBalls(ball1, ball2);
-		double normalY = yDistanceBetweenBalls(ball1, ball2) / distanceBetweenBalls(ball1, ball2);
+		double normalX = Math.abs(xDistanceBetweenBalls(ball1, ball2)) / distanceBetweenBalls(ball1, ball2);
+		double normalY = Math.abs(yDistanceBetweenBalls(ball1, ball2)) / distanceBetweenBalls(ball1, ball2);
 
 		if (ball1OnLeft(ball1, ball2)) {
 			fixPositionWhenBall1Left(ball1, ball2, amountMove, normalX);
@@ -145,29 +145,43 @@ class Model {
 	}
 
 	private double xDistanceBetweenBalls(Ball ball1, Ball ball2) {
-		return Math.abs(ball2.x - ball1.x);
+		return ball2.x - ball1.x;
 	}
 
 	private double yDistanceBetweenBalls(Ball ball1, Ball ball2) {
-		return Math.abs(ball2.y - ball1.y);
+		return ball2.y - ball1.y;
 	}
 
 	private void handleElasticCollision(Ball ball1, Ball ball2) {
-		// TODO: Tangential velocity unchanged?
-
 		/*
 			"u" represents velocity before collision, "v" represents velocity after collision
 		*/
 
+		double distance = distanceBetweenBalls(ball1, ball2);
+
+		double normalX = xDistanceBetweenBalls(ball1, ball2) / distance;
+		double normalY = yDistanceBetweenBalls(ball1, ball2) / distance;
+
+		double tangentX = -normalY;
+		double tangentY = normalX;
+
+		// Collapse velocities onto normal and tangent, "before collision"
+		double u1 = ball1.vx * normalX + ball1.vy * normalY; // normal component for ball 1
+		double u1t = ball1.vx * tangentX + ball1.vy * tangentY; // tangent component for ball 1
+
+		double u2 = ball2.vx * normalX + ball2.vy * normalY;  // normal component for ball 2
+		double u2t = ball2.vx * tangentX + ball2.vy * tangentY;  // tangent component for ball 2
+
+		double m1 = ball1.weight;
+		double m2 = ball2.weight;
+
 		// Conservation of momentum before collision
 		// I = m1u1 + m2u2
-		double momentumX = (ball1.weight * ball1.vx) + (ball2.weight * ball2.vx);
-		double momentumY = (ball1.weight * ball1.vy) + (ball2.weight * ball2.vy);
+		double momentum = (m1 * u1) + (m2 * u2);
 
 		// Conservation of energy before collision
 		// R = u2 − u1
-		double relativeVelocityX = ball2.vx - ball1.vx;
-		double relativeVelocityY = ball2.vy - ball1.vy;
+		double relativeVelocity = u2 - u1;
 
 		/* System of equations for after collision */
 		//	(1) m1v1 + m2v2 = I
@@ -185,15 +199,21 @@ class Model {
 		//		v2 = I + m2*R - R(m1 + m2) / (m1 + m2)
 		//		v2 = I - m1*R / (m1 + m2)
 
-		double sumWeights = ball1.weight + ball2.weight;
+		double sumWeights = m1 + m2;
 
 		// v1 = I + m2*R / (m1 + m2)
-		ball1.vx = (momentumX + (ball2.weight*relativeVelocityX)) / sumWeights;
-		ball1.vy = (momentumY + (ball2.weight*relativeVelocityY)) / sumWeights;
+		double v1 = (momentum + (m2 * relativeVelocity)) / sumWeights;
 
 		// v2 = I - m1*R / (m1 + m2)
-		ball2.vx = (momentumX - (ball1.weight * relativeVelocityX)) / sumWeights;
-		ball2.vy = (momentumY - (ball1.weight * relativeVelocityY)) / sumWeights;
+		double v2 = (momentum - (m1 * relativeVelocity)) / sumWeights;
+
+		// Tangential components should be unchanged, so u1t = v1t etc.
+		// Uncollapse velocities
+		ball1.vx = v1 * normalX + u1t * tangentX;
+		ball1.vy = v1 * normalY + u1t * tangentY;
+
+		ball2.vx = v2 * normalX + u2t * tangentX;
+		ball2.vy = v2 * normalY + u2t * tangentY;
 	}
 
 	private double square(double value) {
