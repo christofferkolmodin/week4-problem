@@ -24,9 +24,9 @@ class Model {
 		
 		// Initialize the model with a few balls
 		balls = new Ball[3];
-		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 15);
-		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 25);
-		balls[2] = new Ball(2.5 * width / 3, height * 0.5, -1.0, 1.0,0.25, 20);
+		balls[0] = new Ball(width / 3, height * 0.9, 1.2, 1.6, 0.2, 25);
+		balls[1] = new Ball(2 * width / 3, height * 0.7, -0.6, 0.6,0.3, 45);
+		balls[2] = new Ball(2.5 * width / 3, height * 0.5, -1.0, 1.0,0.25, 40);
 	}
 
 	void step(double deltaT) {
@@ -159,13 +159,13 @@ class Model {
 
 		double distance = distanceBetweenBalls(ball1, ball2);
 
-		double normalX = xDistanceBetweenBalls(ball1, ball2) / distance;
-		double normalY = yDistanceBetweenBalls(ball1, ball2) / distance;
+		double normalX = xDistanceBetweenBalls(ball1, ball2) / distance;	// normal x-component
+		double normalY = yDistanceBetweenBalls(ball1, ball2) / distance;	// normal y-component
 
 		double tangentX = -normalY;
 		double tangentY = normalX;
 
-		// Collapse velocities onto normal and tangent, "before collision"
+		// Add the velocities to the normal and tangent unit vectors, "before collision"
 		double u1 = ball1.vx * normalX + ball1.vy * normalY; // normal component for ball 1
 		double u1t = ball1.vx * tangentX + ball1.vy * tangentY; // tangent component for ball 1
 
@@ -207,8 +207,8 @@ class Model {
 		// v2 = I - m1*R / (m1 + m2)
 		double v2 = (momentum - (m1 * relativeVelocity)) / sumWeights;
 
-		// Tangential components should be unchanged, so u1t = v1t etc.
-		// Uncollapse velocities
+		// tangential components should be unchanged, so u1t = v1t etc.
+		// embedding the velocities onto the 2D vectors
 		ball1.vx = v1 * normalX + u1t * tangentX;
 		ball1.vy = v1 * normalY + u1t * tangentY;
 
